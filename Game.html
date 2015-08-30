@@ -1,0 +1,481 @@
+<!doctype html>
+
+<html>
+
+	<head>
+
+		<title>Learning Javascript</title>		
+ 
+		<meta charset="utf-8" />
+ 	
+ 		<meta http-equiv="Content-type" content="text/html; charset=utf-8" />
+ 	
+ 		<meta name="viewport" content="width=device-width, initial-scale=1" />
+	
+	</head>
+
+
+<!-- Current bugs: 
+	Bonus stacking works, but the final bonus isn't funcitoning as expected
+	Bonus notification code is incomplete
+	Move away from using the JS alert
+	Style change certain elements (example: negative score goes to red)
+	Make a deduction for incorrect guesses (maybe half of a correct guess)
+	  -->
+
+
+
+<style type="text/css">
+	body {
+		margin: 0;
+		background-color: orange;
+	}
+	#playAreaContainer{
+		margin-left: 50px;
+	}
+	#header{
+		background-color: red;
+		width: 100%;
+		height: 6em;
+		text-align: center;
+	}
+	#title{
+		padding: 10px;
+		color: purple;
+		font-size: 2em;
+		font-family: Helvetica;
+	}
+	#userGuess {
+		width: 150px;
+		height: 65px;
+		font-size: 2em;
+		border: solid 2px;
+	}
+	.bonusButton {
+		width: 250px;
+		height: 100px;
+		margin-top: 10px;
+		display: block;
+	}
+	.explanation {
+		color:red;
+		font-family: verdana;
+	}
+	#scoreBoard {
+		color: red;
+		font-family: verdana;
+		font-size: 2em;
+	}
+	#scoreDiv {
+		color:green;
+		font-family: courier;
+		font-size: 3em;
+	}
+	#bonusNotifier, #rightWrong {
+		color:red;
+		font-size: 2em;
+		font-family: helvetica;
+		float:none;
+	}
+	#notificationContainer {
+		height: 280px;
+		width: 200px;
+		border: solid red 2px;
+		float: left;
+	}
+
+
+
+
+
+
+</style>
+
+
+
+
+
+
+	<body>
+
+		<div id="header">
+
+		<p id = "title">Guess! a number between 0 and 3!</p>
+
+		</div>
+
+		<br/><br/><br/>
+
+		<div id="playAreaContainer">
+
+			<input  id="userGuess"  placeholder="Guess..."/>
+
+			<button id="submitGuess">Guess!</button>
+
+			<div id="notificationContainer">
+
+				<p id="bonusNotifier">No active bonuses...</p>
+				<p id="rightWrong"></p>
+
+			</div>
+
+			<br/>
+
+			<p id = "scoreBoard">Your score is currently:<div id="scoreDiv">0</div></p>
+	
+			<p id="multExplain" class="explanation">(psssst, if you guess right more than once in a row, you get a score multiplier!)</p>
+
+			<p id="bonusExplain" class="explanation">(p.s. psssssssst, if you score enough, there are bonuses (checking the source code is cheating).</p>
+
+			<button id="pageReload">Start New</button>
+
+		</div>
+
+
+
+<!-- I'm going to put in the divs buttons and descriptions of the bonuses that you can buy here, that means that if you are reading this before you play, then you ought to stop now.  Spoilers... -->
+
+
+
+<div id="bonusDivOne" style="display:none;">
+
+	<button id="bonus1" class="bonusButton">
+
+		<p>Bonus 1: 3 guess multiplier bonus of 10!</p>
+	
+		<p>Cost: 100 points</p>
+
+	</button>
+
+</div>
+
+<div id="bonusDivTwo" style="display:none;">
+
+	<button id="bonus2" class="bonusButton">
+
+		<p>Bonus 2: 5 guess multiplier of 10!</p>
+
+		<p>Cost: 250 points</p>
+
+	</button>
+
+</div>
+
+<div id="bonusDivThree" style="display:none;">
+
+	<button id="bonus3" class="bonusButton">
+
+		<p>Bonus 3: Range Reduction! Numer range decreased by 1 (0-2) for 5 guesses.</p>
+
+		<p>Cost: 500 points</p>
+
+	</button>
+
+</div>
+
+
+
+
+<script type="text/javascript"> 
+
+
+
+
+
+var score = 0;
+
+var guessArrayOne = [1,1,1]; 
+
+var guessArrayTwo = [1,1,1,1,1,1];
+
+var guessArrayThree = [1,1,1,1,1,1];
+
+var multCount = 1;
+
+var firstBonus;
+
+var secondBonus = 1;
+
+var rangeMult = 4;
+
+var stackableOne = - 1;
+
+var stackableTwo = - 1;
+
+var bonusOne = function() {
+  
+  
+
+
+	if (guessArrayOne[guessArrayOne.length - -stackableOne] == undefined) {
+		
+		firstBonus = 10;
+		//returns NaN guesses.  debug.
+		console.log(guessArrayOne[guessArrayOne.length - -stackableOne]);
+
+	} else {
+	
+		firstBonus = 1;
+
+		stackableOne = -1;
+		//this resets the notifier properly
+		document.getElementById("bonusNotifier").innerHTML="No active bonuses...";
+
+	}
+
+}
+
+var bonusTwo = function () {
+
+	if (guessArrayTwo[guessArrayTwo.length - -stackableTwo] == undefined) {
+
+		secondBonus = 10;
+
+	} else {
+
+		secondBonus = 1;
+
+	}
+
+}
+
+var bonusThree = function () {
+
+	if (guessArrayThree[guessArrayThree.length - 6] == undefined) {
+
+		rangeMult = 3;
+
+	} else {
+
+		rangeMult = 4;
+
+	}
+
+
+}
+
+
+
+	document.getElementById("submitGuess").onclick=function() {
+		
+		var x = Math.random();
+		
+		x = /*rangeMult*/0 * x; //setting to 0 to allow for faster debugging
+		
+		x = Math.floor(x);
+		
+		guessArrayOne.push(1);
+
+		guessArrayTwo.push(1);
+
+		guessArrayThree.push(1);
+		
+		console.log(rangeMult);
+
+		console.log(guessArrayThree[guessArrayThree.length]);
+
+		// the if statement runs by evaluating whether the userGuess is equal to the value stored in x
+		if (x == document.getElementById("userGuess").value) {
+			
+			bonusOne();
+
+			bonusTwo();
+
+			bonusThree();
+			
+			score = Number(document.getElementById("scoreDiv").innerHTML);
+			// if the expression evaluates to TRUE then score is increased by 10 times the multiplier
+			score = score + (10 * multCount * firstBonus * secondBonus);
+			// you get an alert to let you know you're right		
+			document.getElementById("rightWrong").innerHTML="That's a good guess!";
+			// this expression gets the score div and inserts the score from above into it so you have a score displayed for the user
+			document.getElementById("scoreDiv").innerHTML =  score;
+			// the multcount increments by ten for each successive x == userGuess, meaning that two right guesses increases your points by 110 instead of just 20
+			multCount = multCount + 10;	
+
+			
+			// the else lets you know you missed the mark and resets the multiplier
+			} else {
+
+				score = score -5;
+
+				document.getElementById("rightWrong").innerHTML="Try again mate! My number was " + x;
+
+				document.getElementById("scoreDiv").innerHTML =  score;
+
+				multCount = 1;
+
+			}
+
+		
+
+
+
+		var buttonHider = function() { //There was no need to make it an onclick even, because as the onlcick is already being used for the parent function, it forces you to wait for the next click to evaluate the values, without it at all the buttons behave as desired.
+			
+			 {
+
+			if (score < 100){
+
+				document.getElementById("bonusDivOne").style.display='none';
+			
+			}
+
+			if (score < 250) {
+
+				document.getElementById("bonusDivTwo").style.display='none';
+			}
+			if (score < 500) {
+
+				document.getElementById("bonusDivThree").style.display='none';
+			}
+		}
+		 {
+
+			if (score < 100){
+
+				document.getElementById("bonusDivOne").style.display='none';
+			}
+
+			if (score < 250) {
+
+				document.getElementById("bonusDivTwo").style.display='none';
+			}
+			if (score < 500) {
+
+				document.getElementById("bonusDivThree").style.display='none';
+			}
+
+		}
+		{
+
+			if (score < 100){
+
+				document.getElementById("bonusDivOne").style.display='none';
+			}
+
+			if (score < 250) {
+
+				document.getElementById("bonusDivTwo").style.display='none';
+			}
+			if (score < 500) {
+
+				document.getElementById("bonusDivThree").style.display='none';
+			}
+		}
+	}
+
+
+	
+
+
+
+
+		// this will display the bonus button if the score is over 100
+		if (score >= 100) {
+
+			document.getElementById("bonusDivOne").style.display='block';
+
+			// this is the actual bonus button, it decrements the score by 100 and calls the function to hide the button if the score drops below 100
+			document.getElementById("bonus1").onclick=function() {
+				//decrement the value of score variable
+				score = score - 100;
+				//log the decremented value to the html
+				document.getElementById("scoreDiv").innerHTML = score;
+
+				document.getElementById("bonusNotifier").innerHTML = "x10 multiplier for " + " " + " guesses!";
+
+				guessArrayOne = [];
+				
+				// Calling to my function to hide the buttons, see above
+				buttonHider();
+
+				stackableOne = stackableOne - 3;
+
+				}
+
+				
+
+			}
+
+
+				
+
+			
+		
+
+		if (score >= 250) {
+
+			document.getElementById("bonusDivTwo").style.display='block';
+
+			document.getElementById("bonus2").onclick=function() {
+
+				score = score - 250;
+
+				document.getElementById("scoreDiv").innerHTML = score;
+
+				guessArrayTwo = [];
+
+				buttonHider();
+				
+			}
+			
+		}
+
+		
+
+	
+
+
+		if (score >= 500) {
+
+			document.getElementById("bonusDivThree").style.display='block';
+
+			document.getElementById("bonus3").onclick=function() {
+
+				score = score - 500;
+
+				document.getElementById("scoreDiv").innerHTML = score;
+
+				guessArrayThree = [];
+
+				buttonHider();
+
+			}
+
+			
+		}
+
+
+
+	}
+
+
+
+
+
+
+
+
+	document.getElementById("pageReload").onclick=function(){
+				location.reload();
+	}
+
+
+
+
+
+
+
+
+
+
+
+
+
+	
+		</script>
+
+	</body>
+
+</html>
